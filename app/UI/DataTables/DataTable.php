@@ -54,13 +54,13 @@ abstract class DataTable
     {
         $data = [];
 
-        $accessorKeys = $this->toColumns()->pluck('accessorKey')->flip();
+        $accessorKeys = $this->toColumns()->pluck('accessorKey')->flip()->toArray();
 
         foreach ($this->query()->items() as $key => $model) {
-            $attributes = $model->getAttributes();
+            $attributes = $model->toArray();
 
             foreach ($attributes as $ak => $vk) {
-                if (array_key_exists($ak, $accessorKeys->toArray())) {
+                if (array_key_exists($ak, $accessorKeys)) {
                     $data[$key][$ak] = $vk;
                 }
 
