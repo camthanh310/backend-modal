@@ -1,13 +1,13 @@
 <script lang="ts" setup generic="TValue">
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import type { Item } from '@/types/data-table';
+import type { DataItem } from '@/types/data-table';
 
 defineProps<{
     item: TValue;
-    fallbackName: Item;
+    fallbackName: DataItem;
 }>();
 
-function getFallbackName(item: Item) {
+function getFallbackName(item: DataItem) {
     if (item.name) {
         return item.name;
     }
