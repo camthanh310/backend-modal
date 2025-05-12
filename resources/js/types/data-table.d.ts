@@ -1,6 +1,6 @@
 export type CellFormat = 'TextColumn' | 'CheckboxColumn' | 'AvatarColumn' | 'ActionColumn';
 
-export type Item = any;
+export type DataItem = any;
 
 export type ActionType = 'url' | 'modal';
 
@@ -11,7 +11,7 @@ export interface Action {
     actionType: ActionType;
 }
 
-export interface DataTableColumn<TItem = Item, TValue = any> {
+export interface DataTableColumn<TItem = DataItem, TValue = any> {
     accessorKey: keyof TItem & string;
     header: string;
     format: CellFormat;
