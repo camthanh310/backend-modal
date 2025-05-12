@@ -11,10 +11,11 @@ export interface Action {
     actionType: ActionType;
 }
 
-export interface DataTableColumn<TValue extends Item> {
-    accessorKey: keyof TValue;
+export interface DataTableColumn<TItem = Item, TValue = any> {
+    accessorKey: keyof TItem & string;
     header: string;
     format: CellFormat;
+    cell?: (value: TValue, item: TItem) => any;
     enableSorting?: boolean;
     enableHiding?: boolean;
     notVisibled?: boolean;
