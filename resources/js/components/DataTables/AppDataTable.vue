@@ -1,28 +1,24 @@
 <script lang="ts" setup generic="TData">
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { DataTableProps, Item } from '@/types/data-table';
+import type { DataTableProps, DataItem } from '@/types/data-table';
 import AppPagination from './AppPagination.vue';
 import ActionColumn from './Columns/ActionColumn.vue';
 import AvatarColumn from './Columns/AvatarColumn.vue';
 import TextColumn from './Columns/TextColumn.vue';
 
-interface Props {
+interface Props<TData = DataItem> {
     resource: DataTableProps<TData>;
     primaryKey?: string;
 }
 
 const props = defineProps<Props>();
 
-function getRowItem(item: Item) {
-    if (props.primaryKey) {
-        return props.primaryKey;
-    }
-
-    if (item.id) {
-        return item.id;
-    }
-
-    return item;
+function getRowKey(item: DataItem) {
+    if (item.id) return item.id;
+    if (item.name) return item.name;
+    if (item.key) return item.key;
+    if (props.primaryKey) return props.primaryKey;
+    return JSON.stringify(item); // Fallback to stringify if no unique key
 }
 </script>
 
@@ -46,7 +42,7 @@ function getRowItem(item: Item) {
                     </TableHeader>
                     <TableBody>
                         <template v-if="resource.response.data.length">
-                            <TableRow v-for="item in resource.response.data" :key="getRowItem(item)">
+                            <TableRow v-for="item in resource.response.data" :key="getRowKey(item)">
                                 <TableCell v-for="column in resource.columns" :key="column.accessorKey">
                                     <TextColumn v-if="column.format === 'TextColumn'" :item="item[column.accessorKey]" />
                                     <AvatarColumn v-if="column.format === 'AvatarColumn'" :item="item[column.accessorKey]" :fallback-name="item" />
