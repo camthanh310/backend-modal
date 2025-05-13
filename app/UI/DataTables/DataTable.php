@@ -4,6 +4,7 @@ namespace App\UI\DataTables;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 abstract class DataTable
@@ -14,7 +15,7 @@ abstract class DataTable
 
         return [
             'columns'  => $instance->toColumns()->toArray(),
-            'response' => $instance->toquery()->toArray()
+            'response' => $instance->toQuery()->toArray()
         ];
     }
 
@@ -50,49 +51,51 @@ abstract class DataTable
         ]);
     }
 
-    protected function toquery(): Collection
+    protected function toQuery(): Collection
     {
         $data = [];
 
-        $accessorKeys = $this->toColumns()->pluck('accessorKey')->flip()->toArray();
+        $accessorKeys = $this->toColumns()->pluck('accessorKey')->toArray();
 
         foreach ($this->query()->items() as $key => $model) {
-            $attributes = $model->toArray();
-
-            foreach ($attributes as $ak => $vk) {
-                if (array_key_exists($ak, $accessorKeys)) {
-                    $data[$key][$ak] = $vk;
-                }
-
-                if (!empty($actions = $this->actions())) {
-                    foreach ($actions as $ack => $action) {
-
-                        if ($action instanceof Arrayable) {
-                            $execute = $action->toArray();
-                            $label = data_get($execute, 'label');
-                            $icon = data_get($execute, 'icon');
-                            $actionType = data_get($execute, 'actionType');
-                            if ($actionType === 'url') {
-                                $action = value($execute['action'], $model);
-                            } else {
-                                $action = value($execute['action']);
-                            }
-                        } else {
-                            $label = data_get($action, 'label');
-                            $icon = data_get($action, 'icon');
-
-                            if ($ack === 'url') {
-                                $actionType = 'url';
-                                $action = value($action['url'], $model);
-                            }
-                        }
-                        $data[$key]['action'][$ack] = [
-                            'label' => $label,
-                            'icon' => $icon,
-                            'actionType' => $actionType,
-                            'action' => $action
-                        ];
+            foreach ($accessorKeys as $accessorKey) {
+                if (isset($model[$accessorKey])) {
+                    $field = $model[$accessorKey];
+                    if ($field instanceof Carbon) {
+                        $data[$key][$accessorKey] = Carbon::make($field)->toDateTimeString();
+                    } else {
+                        $data[$key][$accessorKey] = $field;
                     }
+                }
+            }
+
+            if (!empty($actions = $this->actions())) {
+                foreach ($actions as $ack => $action) {
+                    if ($action instanceof Arrayable) {
+                        $execute = $action->toArray();
+                        $label = data_get($execute, 'label');
+                        $icon = data_get($execute, 'icon');
+                        $actionType = data_get($execute, 'actionType');
+                        if ($actionType === 'url') {
+                            $action = value($execute['action'], $model);
+                        } else {
+                            $action = value($execute['action']);
+                        }
+                    } else {
+                        $label = data_get($action, 'label');
+                        $icon = data_get($action, 'icon');
+
+                        if ($ack === 'url') {
+                            $actionType = 'url';
+                            $action = value($action['url'], $model);
+                        }
+                    }
+                    $data[$key]['action'][$ack] = [
+                        'label' => $label,
+                        'icon' => $icon,
+                        'actionType' => $actionType,
+                        'action' => $action
+                    ];
                 }
             }
         }
