@@ -1,6 +1,6 @@
 <script lang="ts" setup generic="TData">
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { DataTableProps, DataItem } from '@/types/data-table';
+import type { DataItem, DataTableProps } from '@/types/data-table';
 import AppPagination from './AppPagination.vue';
 import ActionColumn from './Columns/ActionColumn.vue';
 import AvatarColumn from './Columns/AvatarColumn.vue';
@@ -29,25 +29,32 @@ function getRowKey(item: DataItem) {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead v-for="column in resource.columns" :key="column.accessorKey">
-                                <template v-if="!column.notVisibled">
-                                    {{ column.header }}
-                                </template>
-
-                                <span v-else class="sr-only">
-                                    {{ column.header }}
-                                </span>
-                            </TableHead>
+                            <template v-for="column in resource.columns" :key="column.accessorKey">
+                                <TableHead v-if="!column.enableHiding">
+                                    <template v-if="!column.notVisibled">
+                                        {{ column.header }}
+                                    </template>
+                                    <span v-else class="sr-only">
+                                        {{ column.header }}
+                                    </span>
+                                </TableHead>
+                            </template>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         <template v-if="resource.response.data.length">
                             <TableRow v-for="item in resource.response.data" :key="getRowKey(item)">
-                                <TableCell v-for="column in resource.columns" :key="column.accessorKey">
-                                    <TextColumn v-if="column.format === 'TextColumn'" :item="item[column.accessorKey]" />
-                                    <AvatarColumn v-if="column.format === 'AvatarColumn'" :item="item[column.accessorKey]" :fallback-name="item" />
-                                    <ActionColumn v-if="column.format === 'ActionColumn'" :item="item[column.accessorKey]" />
-                                </TableCell>
+                                <template v-for="column in resource.columns" :key="column.accessorKey">
+                                    <TableCell v-if="!column.enableHiding">
+                                        <TextColumn v-if="column.format === 'TextColumn'" :item="item[column.accessorKey]" />
+                                        <AvatarColumn
+                                            v-if="column.format === 'AvatarColumn'"
+                                            :item="item[column.accessorKey]"
+                                            :fallback-name="item"
+                                        />
+                                        <ActionColumn v-if="column.format === 'ActionColumn'" :item="item[column.accessorKey]" />
+                                    </TableCell>
+                                </template>
                             </TableRow>
                         </template>
 
