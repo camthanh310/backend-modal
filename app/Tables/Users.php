@@ -19,6 +19,7 @@ class Users extends DataTable
             AvatarColumn::make('avatar'),
             TextColumn::make('name'),
             TextColumn::make('email'),
+            TextColumn::make('created_at')->dateTime(),
             ActionColumn::make('action')
         ];
     }

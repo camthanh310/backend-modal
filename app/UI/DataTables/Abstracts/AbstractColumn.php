@@ -7,24 +7,19 @@ use Illuminate\Contracts\Support\Arrayable;
 
 abstract class AbstractColumn implements Arrayable
 {
+    protected bool $dateTime = false;
+    protected ?string $header = null;
+    protected ?bool $enableSorting = null;
+    protected ?bool $enableHiding = null;
+    protected bool $notVisibled = false;
+
     public function __construct(
         protected string $accessorKey,
-        protected ?string $header = null,
-        protected ?bool $enableSorting = null,
-        protected ?bool $enableHiding = null,
-        protected array $actions = [],
-        protected bool $notVisibled = false
     ) {}
 
-    public static function make(
-        string $accessorKey,
-        ?string $header = null,
-        ?bool $enableSorting = null,
-        ?bool $enableHiding = null,
-        array $actions = [],
-        bool $notVisibled = false
-    ): static {
-        return new static($accessorKey, $header, $enableSorting, $enableHiding, $actions, $notVisibled);
+    public static function make(string $accessorKey): static
+    {
+        return new static($accessorKey);
     }
 
     public function sortable(bool $enableSorting = true): self
@@ -63,10 +58,17 @@ abstract class AbstractColumn implements Arrayable
             'enableSorting' => $this->enableSorting,
             'enableHiding' => $this->enableHiding,
             'format' => $this->format(),
-            'actions' => $this->actions,
-            'notVisibled' => $this->notVisibled
+            'notVisibled' => $this->notVisibled,
+            'dateTime' => $this->dateTime
         ])->filter(fn($value) => !is_null($value))
             ->toArray();
+    }
+
+    public function dateTime(): self
+    {
+        $this->dateTime = false;
+
+        return $this;
     }
 
     abstract public function format(): string;

@@ -10,4 +10,11 @@ class TextColumn extends AbstractColumn
     {
         return class_basename(static::class);
     }
+
+    public function dateTime(): self
+    {
+        $this->dateTime = true;
+
+        return $this;
+    }
 }
